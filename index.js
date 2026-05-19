@@ -8,7 +8,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 const conversations = {};
 
@@ -37,7 +36,6 @@ INSTRUCCIONES:
   1️⃣ Ver el menú  2️⃣ Hacer una reservación  3️⃣ Horarios y ubicación  4️⃣ Programa de lealtad  5️⃣ Hablar con el equipo"
 - Respuestas cortas y directas (máximo 3 párrafos)
 - Para reservaciones: pide fecha, hora, personas y nombre
-- Para disponibilidad de mesas: indica que el equipo confirmará
 - Nunca inventes precios o platillos que no estén en el menú`;
 
 function fixConversation(messages) {
@@ -57,11 +55,7 @@ app.post('/webhook', async (req, res) => {
   const { From, Body } = req.body;
   console.log(`Mensaje de ${From}: ${Body}`);
 
-  // Responder a Twilio inmediatamente para evitar timeouts
-  res.type('text/xml');
-  res.send('<?xml version="1.0" encoding="UTF-8"?><Response></Response>');
-
-  if (!From || !Body) return;
+  if (!From || !Body) return res.status(400).send('Bad request');
 
   const userMessage = Body.trim();
 
@@ -86,27 +80,20 @@ app.post('/webhook', async (req, res) => {
     });
 
     botReply = response.content[0].text;
-    console.log(`Respuesta para ${From}: ${botReply.substring(0, 100)}...`);
+    console.log(`Respuesta: ${botReply.substring(0, 100)}...`);
 
   } catch (err) {
     console.error('Error Claude API:', err.message);
     conversations[From] = [];
-    botReply = 'Disculpa, tuve un problema técnico. Escribe "hola" para comenzar de nuevo 🙏';
+    botReply = 'Disculpa, tuve un problema. Escribe "hola" para comenzar de nuevo 🙏';
   }
 
   conversations[From].push({ role: 'assistant', content: botReply });
 
-  // Enviar respuesta como mensaje saliente
-  try {
-    await twilioClient.messages.create({
-      from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
-      to: From,
-      body: botReply
-    });
-    console.log(`Mensaje enviado exitosamente a ${From}`);
-  } catch (err) {
-    console.error('Error enviando mensaje:', err.message);
-  }
+  const twiml = new twilio.twiml.MessagingResponse();
+  twiml.message(botReply);
+  res.type('text/xml');
+  res.send(twiml.toString());
 });
 
 app.get('/', (req, res) => {
@@ -115,4 +102,3 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`L'Orangerie Bot corriendo en el puerto ${PORT}`));
-
