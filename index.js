@@ -53,24 +53,15 @@ function fixConversation(messages) {
   return fixed;
 }
 
-async function notifyRestaurant(reservationDetails) {
-  if (!process.env.RESTAURANT_WHATSAPP_NUMBER) return;
-  try {
-    await twilioClient.messages.create({
-      from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
-      to: `whatsapp:${process.env.RESTAURANT_WHATSAPP_NUMBER}`,
-      body: `🗓️ *NUEVA RESERVACIÓN*\n\n${reservationDetails}\n\n_L'Orangerie Bot_`
-    });
-  } catch (err) {
-    console.error('Error notificando restaurante:', err.message);
-  }
-}
-
 app.post('/webhook', async (req, res) => {
   const { From, Body } = req.body;
-  console.log(`Mensaje recibido de ${From}: ${Body}`);
+  console.log(`Mensaje de ${From}: ${Body}`);
 
-  if (!From || !Body) return res.status(400).send('Bad request');
+  // Responder a Twilio inmediatamente para evitar timeouts
+  res.type('text/xml');
+  res.send('<?xml version="1.0" encoding="UTF-8"?><Response></Response>');
+
+  if (!From || !Body) return;
 
   const userMessage = Body.trim();
 
@@ -95,13 +86,7 @@ app.post('/webhook', async (req, res) => {
     });
 
     botReply = response.content[0].text;
-    console.log(`Respuesta enviada a ${From}: ${botReply.substring(0, 80)}...`);
-
-    const isReservation = botReply.toLowerCase().includes('tu reservación') ||
-                          botReply.toLowerCase().includes('reservación confirmada');
-    if (isReservation) {
-      await notifyRestaurant(`Cliente: ${From}\nDetalles: ${userMessage}\n\nBot: ${botReply}`);
-    }
+    console.log(`Respuesta para ${From}: ${botReply.substring(0, 100)}...`);
 
   } catch (err) {
     console.error('Error Claude API:', err.message);
@@ -111,10 +96,17 @@ app.post('/webhook', async (req, res) => {
 
   conversations[From].push({ role: 'assistant', content: botReply });
 
-  const twiml = new twilio.twiml.MessagingResponse();
-  twiml.message(botReply);
-  res.type('text/xml');
-  res.send(twiml.toString());
+  // Enviar respuesta como mensaje saliente
+  try {
+    await twilioClient.messages.create({
+      from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
+      to: From,
+      body: botReply
+    });
+    console.log(`Mensaje enviado exitosamente a ${From}`);
+  } catch (err) {
+    console.error('Error enviando mensaje:', err.message);
+  }
 });
 
 app.get('/', (req, res) => {
@@ -122,4 +114,5 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`L'Orangerie Bot corriendo en el puerto ${PORT}`))
+app.listen(PORT, () => console.log(`L'Orangerie Bot corriendo en el puerto ${PORT}`));
+
