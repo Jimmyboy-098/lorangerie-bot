@@ -1,9 +1,11 @@
 const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
 const twilio = require('twilio');
+const path = require('path');
 const MENU = require('./menu');
 
 const app = express();
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
@@ -96,8 +98,11 @@ app.post('/webhook', async (req, res) => {
   res.send(twiml.toString());
 });
 
-app.get('/', (req, res) => {
-  res.send(`<h2>🥐 L'Orangerie Bot</h2><p>✅ En línea y funcionando.</p>`);
+app.get('/health', (req, res) => {
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: "L'Orangerie Bot" });
 });
 
 const PORT = process.env.PORT || 3000;
