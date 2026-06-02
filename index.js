@@ -1,8 +1,9 @@
 const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
 const twilio = require('twilio');
-const path = require('path');
 const MENU = require('./menu');
+
+const path = require('path');
 
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
@@ -13,9 +14,22 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const conversations = {};
 
-const SYSTEM_PROMPT = `Eres el asistente virtual de L'Orangerie, un restaurante gourmet de estilo francés en Ciudad Juárez, Chihuahua, México.
+function getSystemPrompt() {
+  const now = new Date();
+  const juarezHour = parseInt(now.toLocaleString('en-US', { timeZone: 'America/Denver', hour: 'numeric', hour12: false }));
+  const juarezTime = now.toLocaleString('es-MX', { timeZone: 'America/Denver', hour: '2-digit', minute: '2-digit', hour12: false });
+
+  const desayunosActivos = juarezHour >= 7 && juarezHour < 14;
+  const horarioDesayunos = desayunosActivos
+    ? `Los DESAYUNOS están disponibles ahora (servicio hasta las 2:00 PM).`
+    : `Los DESAYUNOS NO están disponibles en este momento. El servicio de desayunos es de 7:00 AM a 2:00 PM. Si alguien pregunta por algún desayuno, explica amablemente que ya terminó el horario y sugiere opciones del menú de comida: Entradas, Platos Fuertes, Pastas, Hamburguesas o Postres.`;
+
+  return `Eres el asistente virtual de L'Orangerie, un restaurante gourmet de estilo francés en Ciudad Juárez, Chihuahua, México.
 
 Tu nombre es "Héloïse". Siempre hablas en español con calidez y profesionalismo.
+
+HORA ACTUAL EN CIUDAD JUÁREZ: ${juarezTime}
+DISPONIBILIDAD: ${horarioDesayunos}
 
 INFORMACIÓN DEL RESTAURANTE:
 - Nombre: L'Orangerie — Cafetería, Restaurante y Panadería Gourmet Europea
@@ -39,6 +53,7 @@ INSTRUCCIONES:
 - Respuestas cortas y directas (máximo 3 párrafos)
 - Para reservaciones: pide fecha, hora, personas y nombre
 - Nunca inventes precios o platillos que no estén en el menú`;
+}
 
 function fixConversation(messages) {
   if (messages.length === 0) return messages;
@@ -77,7 +92,7 @@ app.post('/webhook', async (req, res) => {
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 600,
-      system: SYSTEM_PROMPT,
+      system: getSystemPrompt(),
       messages: cleanMessages
     });
 
@@ -96,9 +111,6 @@ app.post('/webhook', async (req, res) => {
   twiml.message(botReply);
   res.type('text/xml');
   res.send(twiml.toString());
-});
-
-app.get('/health', (req, res) => {
 });
 
 app.get('/health', (req, res) => {
