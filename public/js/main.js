@@ -323,6 +323,71 @@ resForm.addEventListener('submit', e => {
   window.open(`https://wa.me/${RESTAURANT_WA}?text=${encodeURIComponent(msg)}`, '_blank');
 });
 
+// ── Monet Gallery ────────────────────────────────────────
+const PAINTINGS = [
+  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg/320px-Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg', title: 'Nymphéas, 1906' },
+  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Monet_-_Impression%2C_Sunrise.jpg/280px-Monet_-_Impression%2C_Sunrise.jpg', title: 'Impression, Soleil Levant, 1872' },
+  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Coquelicots.jpg/260px-Claude_Monet_-_Coquelicots.jpg', title: 'Les Coquelicots, 1873' },
+  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Claude_Monet_-_Woman_with_a_Parasol_-_Madame_Monet_and_Her_Son_-_National_Gallery_of_Art.jpg/240px-Claude_Monet_-_Woman_with_a_Parasol_-_Madame_Monet_and_Her_Son_-_National_Gallery_of_Art.jpg', title: "Femme à l'ombrelle, 1875" },
+  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Claude_Monet_-_The_Japanese_Footbridge_-_Google_Art_Project.jpg/300px-Claude_Monet_-_The_Japanese_Footbridge_-_Google_Art_Project.jpg', title: 'Le Pont Japonais, 1899' },
+  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Claude_Monet_-_Haystacks%2C_end_of_summer.jpg/320px-Claude_Monet_-_Haystacks%2C_end_of_summer.jpg', title: "Meules, Fin de l'été, 1890" },
+  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Claude_Monet_-_The_Water_Lily_Pond.jpg/280px-Claude_Monet_-_The_Water_Lily_Pond.jpg', title: 'Le Bassin aux Nymphéas, 1900' },
+  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Claude_Monet_-_The_Magpie_-_Google_Art_Project.jpg/300px-Claude_Monet_-_The_Magpie_-_Google_Art_Project.jpg', title: 'La Pie, 1868' },
+];
+
+function initMonetGallery() {
+  const layer = el('galleryLayer');
+  if (!layer) return;
+
+  const positions = [
+    { top: '8%',  left: '-3%',  right: 'auto', size: '180px' },
+    { top: '16%', left: 'auto', right: '-2%',  size: '200px' },
+    { top: '30%', left: '-4%',  right: 'auto', size: '190px' },
+    { top: '42%', left: 'auto', right: '-3%',  size: '175px' },
+    { top: '56%', left: '-2%',  right: 'auto', size: '210px' },
+    { top: '67%', left: 'auto', right: '-4%',  size: '185px' },
+    { top: '78%', left: '-3%',  right: 'auto', size: '195px' },
+    { top: '88%', left: 'auto', right: '-2%',  size: '170px' },
+  ];
+
+  PAINTINGS.forEach((painting, i) => {
+    const pos = positions[i % positions.length];
+    const frame = document.createElement('div');
+    frame.className = 'monet-frame';
+    frame.style.top = pos.top;
+    frame.style.left = pos.left;
+    frame.style.right = pos.right;
+    frame.style.width = pos.size;
+
+    const img = document.createElement('img');
+    img.src = painting.url;
+    img.alt = painting.title;
+    img.loading = 'lazy';
+    img.onerror = () => { frame.style.display = 'none'; };
+
+    const caption = document.createElement('p');
+    caption.className = 'monet-caption';
+    caption.textContent = painting.title;
+
+    frame.appendChild(img);
+    frame.appendChild(caption);
+    layer.appendChild(frame);
+  });
+
+  const paintingObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        paintingObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.05, rootMargin: '0px 0px -80px 0px' });
+
+  document.querySelectorAll('.monet-frame').forEach(f => paintingObserver.observe(f));
+}
+
+initMonetGallery();
+
 // ── Scroll reveal (Intersection Observer) ────────────────
 const observer = new IntersectionObserver(entries => {
   entries.forEach(entry => {
