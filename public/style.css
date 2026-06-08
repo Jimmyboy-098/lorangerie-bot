@@ -108,40 +108,48 @@ section    { padding: 7rem 0; position: relative; }
 .delay-2 { transition-delay: .3s; }
 
 /* =====================================================
-   MONET GALLERY LAYER
+   GALERÍA — PASILLOS DE INTERLUDIO
+   Franjas entre secciones: una pintura de Monet "a lo lejos",
+   iluminada por una luz cenital que se apaga hacia los bordes —
+   como caminar por el pasillo de un museo entre salas.
    ===================================================== */
-.gallery-layer { display: none; }
-
-.monet-frame {
-  position: fixed;
-  top: 0;
-  width: 160px;
-  opacity: 0;
-  transition: opacity 1s ease;
-  pointer-events: none;
-  z-index: 0;
-  will-change: transform;
+.gallery-corridor {
+  position: relative;
+  height: 50vh;
+  min-height: 360px;
+  overflow: hidden;
+  background: #161109;
 }
-.monet-frame.visible { opacity: 0.3; }
-.monet-frame img {
-  width: 100%;
-  height: auto;
-  display: block;
-  border: 12px solid var(--gold-mid);
-  border-bottom-width: 24px;
-  box-shadow:
-    6px 6px 0 rgba(0,0,0,.18),
-    12px 12px 28px rgba(0,0,0,.22),
-    0 36px 64px rgba(0,0,0,.14);
+.corridor-painting {
+  position: absolute;
+  inset: -4%;
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(38%) brightness(.5) saturate(.85);
+  transform: scale(1.06);
 }
-.monet-caption {
+.corridor-spotlight {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 50% 60% at 50% -8%, rgba(255,247,232,.5), transparent 68%);
+  mix-blend-mode: screen;
+}
+.corridor-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 72% 85% at 50% 42%, transparent 30%, rgba(12,9,6,.8) 100%);
+}
+.corridor-caption {
+  position: absolute;
+  bottom: 2.75rem;
+  left: 0; right: 0;
+  text-align: center;
   font-family: var(--font-italic);
   font-style: italic;
-  font-size: .7rem;
-  color: rgba(139,105,20,.65);
-  text-align: center;
-  margin-top: .5rem;
-  letter-spacing: .06em;
+  letter-spacing: .14em;
+  font-size: 1.05rem;
+  color: rgba(245,240,230,.8);
+  text-shadow: 0 2px 22px rgba(0,0,0,.6);
 }
 
 /* =====================================================
@@ -767,10 +775,6 @@ section    { padding: 7rem 0; position: relative; }
 /* =====================================================
    RESPONSIVE
    ===================================================== */
-@media (max-width: 1700px) {
-  .monet-frame { display: none; }
-}
-
 @media (max-width: 900px) {
   .about-grid { grid-template-columns: 1fr; gap: 3rem; }
   .about-visual { display: none; }
@@ -784,6 +788,9 @@ section    { padding: 7rem 0; position: relative; }
 @media (max-width: 680px) {
   section { padding: 5rem 0; }
   .container { padding: 0 1.25rem; }
+
+  .gallery-corridor { height: 34vh; min-height: 240px; }
+  .corridor-caption { font-size: .85rem; bottom: 1.5rem; }
 
   .nav-toggle { display: flex; }
   .nav-links {
