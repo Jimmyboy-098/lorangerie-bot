@@ -324,15 +324,16 @@ resForm.addEventListener('submit', e => {
 });
 
 // ── Monet Gallery ────────────────────────────────────────
+const BASE = 'https://commons.wikimedia.org/wiki/Special:FilePath/';
 const PAINTINGS = [
-  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg/320px-Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg', title: 'Nymphéas, 1906' },
-  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Monet_-_Impression%2C_Sunrise.jpg/280px-Monet_-_Impression%2C_Sunrise.jpg', title: 'Impression, Soleil Levant, 1872' },
-  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Coquelicots.jpg/260px-Claude_Monet_-_Coquelicots.jpg', title: 'Les Coquelicots, 1873' },
-  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Claude_Monet_-_Woman_with_a_Parasol_-_Madame_Monet_and_Her_Son_-_National_Gallery_of_Art.jpg/240px-Claude_Monet_-_Woman_with_a_Parasol_-_Madame_Monet_and_Her_Son_-_National_Gallery_of_Art.jpg', title: "Femme à l'ombrelle, 1875" },
-  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Claude_Monet_-_The_Japanese_Footbridge_-_Google_Art_Project.jpg/300px-Claude_Monet_-_The_Japanese_Footbridge_-_Google_Art_Project.jpg', title: 'Le Pont Japonais, 1899' },
-  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Claude_Monet_-_Haystacks%2C_end_of_summer.jpg/320px-Claude_Monet_-_Haystacks%2C_end_of_summer.jpg', title: "Meules, Fin de l'été, 1890" },
-  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Claude_Monet_-_The_Water_Lily_Pond.jpg/280px-Claude_Monet_-_The_Water_Lily_Pond.jpg', title: 'Le Bassin aux Nymphéas, 1900' },
-  { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Claude_Monet_-_The_Magpie_-_Google_Art_Project.jpg/300px-Claude_Monet_-_The_Magpie_-_Google_Art_Project.jpg', title: 'La Pie, 1868' },
+  { url: BASE + 'Monet_-_Impression,_Sunrise.jpg?width=350',                                      title: 'Impression, Soleil Levant, 1872' },
+  { url: BASE + 'Claude_Monet_-_Water_Lilies_-_1906,_Ryerson.jpg?width=350',                     title: 'Nymphéas, 1906' },
+  { url: BASE + 'Claude_Monet_-_Water_Lilies_and_Japanese_Bridge.jpg?width=320',                  title: 'Nymphéas et Pont Japonais' },
+  { url: BASE + 'Japanese_Footbridge-Claude_Monet.jpg?width=320',                                 title: 'Le Pont Japonais, 1899' },
+  { url: BASE + 'Claude_Monet_-_Blue_Water_Lilies_-_Google_Art_Project.jpg?width=350',            title: 'Nymphéas Bleus' },
+  { url: BASE + 'Claude_Monet_-_Poppy_Field_-_Google_Art_Project.jpg?width=340',                  title: 'Champ de Coquelicots' },
+  { url: BASE + 'Claude_Monet_-_Springtime_-_Google_Art_Project.jpg?width=310',                   title: 'Printemps, 1872' },
+  { url: BASE + "Claude_Monet_The_Artist's_Garden_at_Giverny.jpg?width=340",                      title: "Le Jardin de Giverny" },
 ];
 
 function initMonetGallery() {
