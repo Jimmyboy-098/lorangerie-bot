@@ -337,45 +337,62 @@ const PAINTINGS = [
 ];
 
 function initMonetGallery() {
-  const sections = document.querySelectorAll('section');
-  if (!sections.length) return;
+  const PARALLAX = 0.28;
+  const vp = window.innerHeight;
 
-  const sizes = [160, 175, 150, 165, 155, 170, 145, 160];
+  // peak scroll positions as fraction of total scrollable distance
+  const peakFractions = [0.05, 0.18, 0.32, 0.46, 0.60, 0.72, 0.84, 0.94];
+  const sides = ['left', 'right', 'left', 'right', 'left', 'right', 'left', 'right'];
+  const frames = [];
 
-  sections.forEach((section, i) => {
-    if (i >= PAINTINGS.length) return;
-    const painting = PAINTINGS[i];
+  function setup() {
+    const totalScroll = Math.max(document.body.scrollHeight - vp, 1);
 
-    const frame = document.createElement('div');
-    frame.className = 'monet-frame';
-    frame.style.width = sizes[i] + 'px';
-    frame.style[i % 2 === 0 ? 'left' : 'right'] = '0';
+    peakFractions.forEach((frac, i) => {
+      if (i >= PAINTINGS.length) return;
 
-    const img = document.createElement('img');
-    img.src = painting.url;
-    img.alt = painting.title;
-    img.loading = 'lazy';
-    img.onerror = () => { frame.style.display = 'none'; };
+      // At scrollY = peakScroll, painting is vertically centered in viewport
+      const peakScroll = frac * totalScroll;
+      const base = peakScroll * PARALLAX + vp * 0.45;
 
-    const caption = document.createElement('p');
-    caption.className = 'monet-caption';
-    caption.textContent = painting.title;
+      const frame = document.createElement('div');
+      frame.className = 'monet-frame';
+      frame.style[sides[i]] = '12px';
+      document.body.appendChild(frame);
 
-    frame.appendChild(img);
-    frame.appendChild(caption);
-    section.appendChild(frame);
-  });
+      const img = document.createElement('img');
+      img.src = PAINTINGS[i].url;
+      img.alt = PAINTINGS[i].title;
+      img.loading = 'lazy';
+      img.onerror = () => { frame.style.display = 'none'; };
 
-  const paintingObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        paintingObserver.unobserve(entry.target);
-      }
+      const caption = document.createElement('p');
+      caption.className = 'monet-caption';
+      caption.textContent = PAINTINGS[i].title;
+
+      frame.appendChild(img);
+      frame.appendChild(caption);
+      frames.push({ frame, base });
     });
-  }, { threshold: 0.15 });
 
-  document.querySelectorAll('.monet-frame').forEach(f => paintingObserver.observe(f));
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+  }
+
+  function update() {
+    const scrollY = window.scrollY;
+    frames.forEach(({ frame, base }) => {
+      const y = base - scrollY * PARALLAX;
+      frame.style.transform = `translateY(${y}px)`;
+      frame.classList.toggle('visible', y < vp - 30 && y > -340);
+    });
+  }
+
+  if (document.readyState === 'complete') {
+    setup();
+  } else {
+    window.addEventListener('load', setup);
+  }
 }
 
 initMonetGallery();
