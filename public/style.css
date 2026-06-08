@@ -139,6 +139,14 @@ section    { padding: 7rem 0; position: relative; }
   inset: 0;
   background: radial-gradient(ellipse 72% 85% at 50% 42%, transparent 30%, rgba(12,9,6,.8) 100%);
 }
+/* Simple line divider — used where a full gallery corridor would be too much */
+.section-divider {
+  height: 1px;
+  max-width: 220px;
+  margin: 0 auto;
+  background: linear-gradient(to right, transparent, var(--gold-dim) 50%, transparent);
+}
+
 .corridor-caption {
   position: absolute;
   bottom: 2.75rem;
@@ -246,33 +254,29 @@ section    { padding: 7rem 0; position: relative; }
   background: radial-gradient(ellipse 90% 80% at 50% 55%, #ede8dc 0%, #f5f0e6 55%, #f9f6f0 100%);
   z-index: 0;
 }
-.hero-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%238b6914' fill-opacity='.03' fill-rule='evenodd'%3E%3Cpath d='M50 50v-6h-3v6h-6v3h6v6h3v-6h6v-3h-6zm0-40V4h-3v6h-6v3h6v6h3v-6h6v-3h-6zM10 50v-6H7v6H1v3h6v6h3v-6h6v-3h-6zm0-40V4H7v6H1v3h6v6h3v-6h6V7h-6z'/%3E%3C/g%3E%3C/svg%3E");
-}
-.hero-bg::after {
-  content: 'L\'Orangerie';
-  position: absolute;
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(8rem, 20vw, 18rem);
-  font-weight: 700;
-  color: rgba(139,105,20,.04);
-  white-space: nowrap;
-  bottom: -2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  letter-spacing: .08em;
-  pointer-events: none;
-  user-select: none;
-}
 .hero-content {
   position: relative;
   z-index: 2;
   text-align: center;
   padding: 2rem 1.5rem;
   max-width: 820px;
+}
+.hero-ornament {
+  width: 60px;
+  height: 1px;
+  margin: 0 auto 1.8rem;
+  position: relative;
+  background: linear-gradient(to right, transparent, var(--gold-mid), transparent);
+  opacity: 0;
+  animation: heroFadeUp .9s var(--ease) 0s forwards;
+}
+.hero-ornament::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 5px; height: 5px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  background: var(--gold);
 }
 .hero-tagline {
   font-family: var(--font-italic);
