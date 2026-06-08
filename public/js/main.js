@@ -340,25 +340,13 @@ function initMonetGallery() {
   const layer = el('galleryLayer');
   if (!layer) return;
 
-  const positions = [
-    { top: '8%',  left: '-3%',  right: 'auto', size: '180px' },
-    { top: '16%', left: 'auto', right: '-2%',  size: '200px' },
-    { top: '30%', left: '-4%',  right: 'auto', size: '190px' },
-    { top: '42%', left: 'auto', right: '-3%',  size: '175px' },
-    { top: '56%', left: '-2%',  right: 'auto', size: '210px' },
-    { top: '67%', left: 'auto', right: '-4%',  size: '185px' },
-    { top: '78%', left: '-3%',  right: 'auto', size: '195px' },
-    { top: '88%', left: 'auto', right: '-2%',  size: '170px' },
-  ];
+  const sizes = [180, 200, 175, 195, 185, 210, 170, 190];
 
   PAINTINGS.forEach((painting, i) => {
-    const pos = positions[i % positions.length];
     const frame = document.createElement('div');
     frame.className = 'monet-frame';
-    frame.style.top = pos.top;
-    frame.style.left = pos.left;
-    frame.style.right = pos.right;
-    frame.style.width = pos.size;
+    frame.style.width = sizes[i] + 'px';
+    frame.style[i % 2 === 0 ? 'left' : 'right'] = '8px';
 
     const img = document.createElement('img');
     img.src = painting.url;
@@ -375,16 +363,33 @@ function initMonetGallery() {
     layer.appendChild(frame);
   });
 
-  const paintingObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        paintingObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.05, rootMargin: '0px 0px -80px 0px' });
+  function positionAndObserve() {
+    const totalHeight = document.body.scrollHeight;
+    layer.style.height = totalHeight + 'px';
 
-  document.querySelectorAll('.monet-frame').forEach(f => paintingObserver.observe(f));
+    const frames = document.querySelectorAll('.monet-frame');
+    const step = totalHeight / (frames.length + 1);
+    frames.forEach((frame, i) => {
+      frame.style.top = Math.round(step * (i + 0.8)) + 'px';
+    });
+
+    const paintingObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          paintingObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.05 });
+
+    frames.forEach(f => paintingObserver.observe(f));
+  }
+
+  if (document.readyState === 'complete') {
+    positionAndObserve();
+  } else {
+    window.addEventListener('load', positionAndObserve);
+  }
 }
 
 initMonetGallery();
