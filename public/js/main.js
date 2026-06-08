@@ -271,6 +271,16 @@ const resDate = el('resDate');
 
 resDate.min = new Date().toISOString().split('T')[0];
 
+function parseReservationTime(date, timeStr) {
+  const [time, period] = timeStr.split(' ');
+  let [hours, minutes] = time.split(':').map(Number);
+  if (period === 'PM' && hours !== 12) hours += 12;
+  if (period === 'AM' && hours === 12) hours = 0;
+  const d = new Date(date + 'T00:00:00');
+  d.setHours(hours, minutes, 0, 0);
+  return d;
+}
+
 resForm.addEventListener('submit', e => {
   e.preventDefault();
 
@@ -283,6 +293,13 @@ resForm.addEventListener('submit', e => {
 
   if (!date || !time || !guests) {
     alert('Por favor completa todos los campos requeridos.');
+    return;
+  }
+
+  const reservationTime = parseReservationTime(date, time);
+  const diffHours = (reservationTime - new Date()) / (1000 * 60 * 60);
+  if (diffHours < 2) {
+    alert('Las reservaciones deben hacerse con al menos 2 horas de anticipación. Por favor elige otra fecha u hora.');
     return;
   }
 
