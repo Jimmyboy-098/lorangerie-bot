@@ -337,16 +337,19 @@ const PAINTINGS = [
 ];
 
 function initMonetGallery() {
-  const layer = el('galleryLayer');
-  if (!layer) return;
+  const sections = document.querySelectorAll('section');
+  if (!sections.length) return;
 
-  const sizes = [180, 200, 175, 195, 185, 210, 170, 190];
+  const sizes = [160, 175, 150, 165, 155, 170, 145, 160];
 
-  PAINTINGS.forEach((painting, i) => {
+  sections.forEach((section, i) => {
+    if (i >= PAINTINGS.length) return;
+    const painting = PAINTINGS[i];
+
     const frame = document.createElement('div');
     frame.className = 'monet-frame';
     frame.style.width = sizes[i] + 'px';
-    frame.style[i % 2 === 0 ? 'left' : 'right'] = '8px';
+    frame.style[i % 2 === 0 ? 'left' : 'right'] = '0';
 
     const img = document.createElement('img');
     img.src = painting.url;
@@ -360,36 +363,19 @@ function initMonetGallery() {
 
     frame.appendChild(img);
     frame.appendChild(caption);
-    layer.appendChild(frame);
+    section.appendChild(frame);
   });
 
-  function positionAndObserve() {
-    const totalHeight = document.body.scrollHeight;
-    layer.style.height = totalHeight + 'px';
-
-    const frames = document.querySelectorAll('.monet-frame');
-    const step = totalHeight / (frames.length + 1);
-    frames.forEach((frame, i) => {
-      frame.style.top = Math.round(step * (i + 0.8)) + 'px';
+  const paintingObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        paintingObserver.unobserve(entry.target);
+      }
     });
+  }, { threshold: 0.15 });
 
-    const paintingObserver = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          paintingObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.05 });
-
-    frames.forEach(f => paintingObserver.observe(f));
-  }
-
-  if (document.readyState === 'complete') {
-    positionAndObserve();
-  } else {
-    window.addEventListener('load', positionAndObserve);
-  }
+  document.querySelectorAll('.monet-frame').forEach(f => paintingObserver.observe(f));
 }
 
 initMonetGallery();
