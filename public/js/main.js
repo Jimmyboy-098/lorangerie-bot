@@ -357,7 +357,7 @@ function initMonetGallery() {
 
       const frame = document.createElement('div');
       frame.className = 'monet-frame';
-      frame.style[sides[i]] = '12px';
+      frame.style[sides[i]] = '36px';
       document.body.appendChild(frame);
 
       const img = document.createElement('img');
@@ -384,7 +384,9 @@ function initMonetGallery() {
     frames.forEach(({ frame, base }) => {
       const y = base - scrollY * PARALLAX;
       frame.style.transform = `translateY(${y}px)`;
-      frame.classList.toggle('visible', y < vp - 30 && y > -340);
+      // Only the painting nearest its "peak" position (vertically centered) is shown,
+      // so consecutive frames on the same side never overlap each other.
+      frame.classList.toggle('visible', Math.abs(y - vp * 0.45) < 170);
     });
   }
 
