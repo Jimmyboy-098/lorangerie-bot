@@ -106,10 +106,22 @@ function getSystemPrompt() {
     hour: '2-digit', minute: '2-digit', hour12: false
   });
 
-  const desayunosActivos = juarezHour >= 7 && juarezHour < 14;
-  const horarioDesayunos = desayunosActivos
-    ? `Los DESAYUNOS están disponibles ahora (servicio hasta las 2:00 PM).`
-    : `Los DESAYUNOS NO están disponibles en este momento. El servicio de desayunos es de 7:00 AM a 2:00 PM. Si alguien pregunta por algún desayuno, explica amablemente que ya terminó el horario y sugiere opciones del menú de comida.`;
+  // Día de la semana en Juárez (los domingos el local solo abre 9 AM–1 PM y solo desayunos)
+  const juarezWeekday = now.toLocaleString('en-US', { timeZone: 'America/Ciudad_Juarez', weekday: 'short' });
+  const esDomingo = juarezWeekday === 'Sun';
+
+  let horarioDesayunos;
+  if (esDomingo) {
+    const abiertoDomingo = juarezHour >= 9 && juarezHour < 13;
+    horarioDesayunos = abiertoDomingo
+      ? `Hoy es DOMINGO: el restaurante abre solo de 9:00 AM a 1:00 PM y SOLO se sirven DESAYUNOS (los domingos no hay menú de comida fuerte). Los desayunos están disponibles ahora.`
+      : `Hoy es DOMINGO: el restaurante abre solo de 9:00 AM a 1:00 PM y SOLO se sirven desayunos. En este momento está CERRADO. Si alguien quiere ordenar o pregunta por comida, explícale amablemente que los domingos solo abrimos de 9:00 AM a 1:00 PM (solo desayunos).`;
+  } else {
+    const desayunosActivos = juarezHour >= 7 && juarezHour < 14;
+    horarioDesayunos = desayunosActivos
+      ? `Los DESAYUNOS están disponibles ahora (servicio hasta las 2:00 PM).`
+      : `Los DESAYUNOS NO están disponibles en este momento. El servicio de desayunos es de 7:00 AM a 2:00 PM. Si alguien pregunta por algún desayuno, explica amablemente que ya terminó el horario y sugiere opciones del menú de comida.`;
+  }
 
   const today = todayJuarez();
 
@@ -124,7 +136,7 @@ DISPONIBILIDAD: ${horarioDesayunos}
 INFORMACIÓN DEL RESTAURANTE:
 - Nombre: L'Orangerie — Cafetería, Restaurante y Panadería Gourmet Europea
 - Dirección: Blvrd Francisco Villarreal Torres 11204, Local 15, Partido Senecu, 32545 Juárez, Chihuahua
-- Horario: Lunes a Sábado de 7:00 AM a 10:00 PM
+- Horario: Lunes a Sábado de 7:00 AM a 10:00 PM. Domingos de 9:00 AM a 1:00 PM (solo servicio de desayunos)
 - Instagram: @lorangeriejrz | Facebook: @lorangerie.juarez
 - Especialidades: Pan de masa madre artesanal, pan dulce, cocina francesa y cafés de especialidad
 
@@ -137,7 +149,8 @@ PROGRAMA DE LEALTAD:
 - Registro con nombre y número de teléfono
 
 RESERVACIONES — INSTRUCCIONES CRÍTICAS:
-- El restaurante acepta reservaciones de lunes a sábado de 7:00 AM a 10:00 PM
+- El restaurante acepta reservaciones de lunes a sábado de 7:00 AM a 10:00 PM, y los domingos de 9:00 AM a 1:00 PM (los domingos solo hay servicio de desayunos)
+- NO aceptes reservaciones para domingo fuera de 9:00 AM–1:00 PM ni para platillos que no sean desayunos ese día. Si lo piden, explica amablemente el horario del domingo.
 - REGLA: las reservaciones requieren MÍNIMO 2 horas de anticipación a la hora actual
 - Cuando tengas TODOS los datos del cliente (nombre, fecha, hora, número de personas), incluye esta línea EXACTAMENTE al final de tu mensaje — sin espacios dentro de los corchetes:
   [RES:{"nombre":"NOMBRE","fecha":"YYYY-MM-DD","hora":"HH:MM","personas":N}]
